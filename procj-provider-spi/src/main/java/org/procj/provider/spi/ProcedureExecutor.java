@@ -2,9 +2,9 @@ package org.procj.provider.spi;
 
 public interface ProcedureExecutor {
 
-	void setParameterIn(int index, Object value);
+  void setParameterIn(int index, Object value);
 
-	Object getReturnValue();
+  Object getReturnValue();
 
-	void execute();
+  void execute();
 }

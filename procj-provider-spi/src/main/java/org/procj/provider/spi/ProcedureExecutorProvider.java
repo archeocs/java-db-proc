@@ -4,8 +4,7 @@ import java.util.Properties;
 
 public interface ProcedureExecutorProvider {
 
-	ProcedureExecutor initExecutor(String signature, Properties properties);
+  ProcedureExecutor initExecutor(String signature, Properties properties);
 
-	String getName();
-
+  String getName();
 }

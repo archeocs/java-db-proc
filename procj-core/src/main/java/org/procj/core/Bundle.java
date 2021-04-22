@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target(TYPE)
 public @interface Bundle {
 
-	String provider();
+  String provider();
 
-	ConfigProperty[] properties();
+  ConfigProperty[] properties();
 }
