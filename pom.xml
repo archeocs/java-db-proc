@@ -19,6 +19,7 @@
 
   <modules>
   	<module>procj-core</module>
-  	<module>procj-hibernate</module>
+  	<module>procj-provider-hibernate</module>
+  	<module>procj-provider-spi</module>
   </modules>
 </project>

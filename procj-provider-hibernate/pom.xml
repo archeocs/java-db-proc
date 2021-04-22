@@ -7,7 +7,7 @@
 		<artifactId>procj-parent</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>procj-hibernate</artifactId>
+	<artifactId>procj-provider-hibernate</artifactId>
 	<properties>
 		<hibernate.version>5.4.30.Final</hibernate.version>
 	</properties>
@@ -16,6 +16,11 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.procj</groupId>
+			<artifactId>procj-provider-spi</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
