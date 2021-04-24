@@ -1,4 +1,4 @@
-package org.procj.core;
+package org.procj.core.annotations;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -8,9 +8,4 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface Bundle {
-
-  String provider();
-
-  ConfigProperty[] properties();
-}
+public @interface ConfigProperty {}

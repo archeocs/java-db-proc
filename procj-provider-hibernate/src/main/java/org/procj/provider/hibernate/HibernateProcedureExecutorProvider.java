@@ -7,7 +7,7 @@ import org.procj.provider.spi.ProcedureExecutorProvider;
 public class HibernateProcedureExecutorProvider implements ProcedureExecutorProvider {
 
   @Override
-  public ProcedureExecutor initExecutor(String signature, Properties properties) {
+  public ProcedureExecutor initExecutor(Properties properties) {
     // TODO Auto-generated method stub
     return null;
   }
