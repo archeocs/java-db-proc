@@ -58,7 +58,6 @@ public class ProcedureInvocationHandlerTest {
     }
 
     @Override
-    public void execute() {
-    }
+    public void execute() {}
   }
 }
