@@ -1,6 +1,8 @@
 package org.procj.provider.hibernate;
 
 import javax.persistence.ParameterMode;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.hibernate.result.ResultSetOutput;
@@ -10,9 +12,11 @@ class HibernateProcedure implements Procedure {
 
   private final ProcedureCall procedure;
   private Object result;
+  private final Session session;
 
-  HibernateProcedure(ProcedureCall procedure) {
+  HibernateProcedure(ProcedureCall procedure, Session session) {
     this.procedure = procedure;
+    this.session = session;
   }
 
   @Override
@@ -29,10 +33,15 @@ class HibernateProcedure implements Procedure {
   @Override
   public void execute() {
     try {
+      final Transaction tx = session.getTransaction();
+      tx.begin();
       procedure.execute();
       if (procedure.getOutputs().getCurrent() instanceof ResultSetOutput) {
         result = procedure.getResultList();
+      } else {
+        procedure.getUpdateCount();
       }
+      tx.commit();
     } finally {
       procedure.unwrap(ProcedureOutputs.class).release();
     }

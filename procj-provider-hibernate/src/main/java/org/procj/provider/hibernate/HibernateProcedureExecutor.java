@@ -16,6 +16,6 @@ public class HibernateProcedureExecutor implements ProcedureExecutor {
   @Override
   public Procedure getProcedure(String signature) {
     final ProcedureCall procedure = session.createStoredProcedureCall(signature);
-    return new HibernateProcedure(procedure);
+    return new HibernateProcedure(procedure, session);
   }
 }
