@@ -67,7 +67,7 @@ public class HibernateProcedureExecutorProviderIT {
     final Procedure procedure = testExecutor.getProcedure("no_args");
     procedure.execute();
 
-    final List<List<?>> rows = getAll("SELECT * FROM INPUT");
+    final List<List<Object>> rows = getAll("SELECT * FROM INPUT");
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0)).contains("no-args");
     assertThat(procedure.getReturnValue()).isNull();
@@ -80,7 +80,7 @@ public class HibernateProcedureExecutorProviderIT {
     procedure.setParameterIn(2, "value");
     procedure.execute();
 
-    final List<List<?>> rows = getAll("SELECT * FROM INPUT");
+    final List<List<Object>> rows = getAll("SELECT * FROM INPUT");
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0)).contains("test_value");
     assertThat(procedure.getReturnValue()).isNull();
@@ -91,8 +91,8 @@ public class HibernateProcedureExecutorProviderIT {
   public void shouldReadFromCursor() throws Exception {
     final Procedure proc = testExecutor.getProcedure("get_src");
     proc.execute();
-    final List<?> rv = (List<?>) proc.getReturnValue();
-    final List<?> expected =
+    final List<Object> rv = (List<Object>) proc.getReturnValue();
+    final List<Object> expected =
         asList(asList(1, "A"), asList(2, "B"), asList(3, "C"), asList(4, "D"), asList(5, "E"));
     assertThat(rv).hasSize(5);
     for (final Object e : expected) {
@@ -117,10 +117,10 @@ public class HibernateProcedureExecutorProviderIT {
     conn.close();
   }
 
-  List<List<?>> getAll(String sql) throws Exception {
+  List<List<Object>> getAll(String sql) throws Exception {
     final Connection conn = getConnection();
     final ResultSet rs = conn.createStatement().executeQuery(sql);
-    final List<List<?>> all = new ArrayList<List<?>>();
+    final List<List<Object>> all = new ArrayList<List<Object>>();
     final int columns = rs.getMetaData().getColumnCount();
     while (rs.next()) {
       final ArrayList<Object> row = new ArrayList<Object>();
