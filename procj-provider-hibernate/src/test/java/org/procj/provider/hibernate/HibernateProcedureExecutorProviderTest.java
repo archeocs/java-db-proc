@@ -6,21 +6,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public class HibernateProcedureExecutorProviderIT {
+public class HibernateProcedureExecutorProviderTest {
 
   public static final DockerImageName MYSQL_IMAGE = DockerImageName.parse("mysql:5.7.22");
   private static MySQLContainer<?> MYSQL;
+  private ProcedureExecutor testExecutor;
 
   @SuppressWarnings({"resource", "rawtypes"})
   @BeforeAll
@@ -35,18 +39,32 @@ public class HibernateProcedureExecutorProviderIT {
     MYSQL.stop();
   }
 
+  @BeforeEach
+  public void initProvider() {
+    final HibernateProcedureExecutorProvider prvider = new HibernateProcedureExecutorProvider();
+    final Properties hibernateProps = new Properties();
+    hibernateProps.setProperty("hibernate.connection.driver_class", MYSQL.getDriverClassName());
+    hibernateProps.setProperty("hibernate.connection.url", MYSQL.getJdbcUrl());
+    hibernateProps.setProperty("hibernate.connection.username", MYSQL.getUsername());
+    hibernateProps.setProperty("hibernate.connection.password", MYSQL.getPassword());
+    hibernateProps.setProperty("hibernate.connection.useSSL", "false");
+    hibernateProps.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57Dialect");
+    testExecutor = prvider.initExecutor(hibernateProps);
+  }
+
+  @AfterEach
+  public void shutDown() {
+    testExecutor.shutdown();
+  }
+
+  @AfterEach
+  public void cleanDb() throws Exception {
+    deleteAll("INPUT");
+  }
+
   @Test
-  public void shouldReadSingleValue() throws Exception {
-    final Properties props = new Properties();
-    props.setProperty("hibernate.connection.driver_class", MYSQL.getDriverClassName());
-    props.setProperty("hibernate.connection.url", MYSQL.getJdbcUrl());
-    props.setProperty("hibernate.connection.username", MYSQL.getUsername());
-    props.setProperty("hibernate.connection.password", MYSQL.getPassword());
-    props.setProperty("hibernate.connection.useSSL", "false");
-    props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57Dialect");
-    final HibernateProcedureExecutorProvider provider = new HibernateProcedureExecutorProvider();
-    final ProcedureExecutor executor = provider.initExecutor(props);
-    final Procedure procedure = executor.getProcedure("no_args");
+  public void shouldCallNoArgsProcedure() throws Exception {
+    final Procedure procedure = testExecutor.getProcedure("no_args");
     procedure.execute();
 
     final List<List<?>> rows = getAll("SELECT * FROM INPUT");
@@ -55,19 +73,23 @@ public class HibernateProcedureExecutorProviderIT {
     assertThat(procedure.getReturnValue()).isNull();
   }
 
+  @Test
+  public void shouldCallProcedureWithArgs() throws Exception {
+    final Procedure procedure = testExecutor.getProcedure("in_args");
+    procedure.setParameterIn(1, "test_");
+    procedure.setParameterIn(2, "value");
+    procedure.execute();
+
+    final List<List<?>> rows = getAll("SELECT * FROM INPUT");
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0)).contains("test_value");
+    assertThat(procedure.getReturnValue()).isNull();
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void shouldReadFromCursor() throws Exception {
-    final Properties props = new Properties();
-    props.setProperty("hibernate.connection.driver_class", MYSQL.getDriverClassName());
-    props.setProperty("hibernate.connection.url", MYSQL.getJdbcUrl());
-    props.setProperty("hibernate.connection.username", MYSQL.getUsername());
-    props.setProperty("hibernate.connection.password", MYSQL.getPassword());
-    props.setProperty("hibernate.connection.useSSL", "false");
-    props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57Dialect");
-    final HibernateProcedureExecutorProvider provider = new HibernateProcedureExecutorProvider();
-    final ProcedureExecutor executor = provider.initExecutor(props);
-    final Procedure proc = executor.getProcedure("get_src");
+    final Procedure proc = testExecutor.getProcedure("get_src");
     proc.execute();
     final List<?> rv = (List<?>) proc.getReturnValue();
     final List<?> expected =
@@ -78,15 +100,25 @@ public class HibernateProcedureExecutorProviderIT {
     }
   }
 
-  List<List<?>> getAll(String sql) throws Exception {
+  private Connection getConnection() throws Exception {
     Class.forName(MYSQL.getDriverClassName());
     final Properties props = new Properties();
     props.setProperty("useSSL", "false");
     props.setProperty("user", MYSQL.getUsername());
     props.setProperty("password", MYSQL.getPassword());
-    final String url = MYSQL.getJdbcUrl();
-    final Connection conn = DriverManager.getConnection(MYSQL.getJdbcUrl(), props);
-    conn.createStatement().execute("call get_src()");
+    return DriverManager.getConnection(MYSQL.getJdbcUrl(), props);
+  }
+
+  private void deleteAll(String table) throws Exception {
+    final Connection conn = getConnection();
+    final Statement stmt = conn.createStatement();
+    stmt.executeUpdate("DELETE FROM " + table);
+    stmt.close();
+    conn.close();
+  }
+
+  List<List<?>> getAll(String sql) throws Exception {
+    final Connection conn = getConnection();
     final ResultSet rs = conn.createStatement().executeQuery(sql);
     final List<List<?>> all = new ArrayList<List<?>>();
     final int columns = rs.getMetaData().getColumnCount();
