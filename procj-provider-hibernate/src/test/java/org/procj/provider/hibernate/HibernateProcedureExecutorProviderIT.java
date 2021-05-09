@@ -20,7 +20,7 @@ import org.procj.provider.spi.ProcedureExecutor;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public class HibernateProcedureExecutorProviderTest {
+public class HibernateProcedureExecutorProviderIT {
 
   public static final DockerImageName MYSQL_IMAGE = DockerImageName.parse("mysql:5.7.22");
   private static MySQLContainer<?> MYSQL;
