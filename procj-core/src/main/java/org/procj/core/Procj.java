@@ -21,7 +21,7 @@ public class Procj {
       throw new IllegalArgumentException(
           "Annotation " + Bundle.class.getCanonicalName() + " is required");
     }
-    return ann != null ? ann.provider() : null;
+    return ann.provider();
   }
 
   @SuppressWarnings("unchecked")
