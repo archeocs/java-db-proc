@@ -1,7 +1,7 @@
 package org.procj.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.procj.core.annotations.Bundle;
 import org.procj.core.annotations.ProcedureConfig;
+import org.procj.core.annotations.TxCommit;
+import org.procj.core.annotations.TxRollback;
 import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 
@@ -34,6 +36,20 @@ public class ProcedureInvocationHandlerTest {
     assertThat(procedure.inParameters).containsEntry(0, "t1");
   }
 
+  public void shouldCommitTx() throws Throwable {
+    final Object proxy = new Object();
+    underTest.invoke(proxy, TestBundle.class.getMethod("testCommit"), null);
+
+    verify(executor).commit();
+  }
+
+  public void shouldRollbackTx() throws Throwable {
+    final Object proxy = new Object();
+    underTest.invoke(proxy, TestBundle.class.getMethod("testRollback"), null);
+
+    verify(executor).rollback();
+  }
+
   @Bundle(
       provider = "test-provider",
       properties = {})
@@ -41,6 +57,12 @@ public class ProcedureInvocationHandlerTest {
 
     @ProcedureConfig(name = "test-procedure")
     void testProcedure();
+
+    @TxCommit
+    void testCommit();
+
+    @TxRollback
+    void testRollback();
   }
 
   class TestProcedure implements Procedure {

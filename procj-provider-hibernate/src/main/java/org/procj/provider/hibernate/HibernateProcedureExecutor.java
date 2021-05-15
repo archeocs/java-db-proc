@@ -28,4 +28,19 @@ public class HibernateProcedureExecutor implements ProcedureExecutor {
     }
     session.close();
   }
+
+  @Override
+  public void commit() {
+    final Transaction tx = session.getTransaction();
+    if (tx.isActive()) {
+      tx.commit();
+    }
+  }
+
+  public void rollback() {
+    final Transaction tx = session.getTransaction();
+    if (tx.isActive()) {
+      tx.rollback();
+    }
+  };
 }

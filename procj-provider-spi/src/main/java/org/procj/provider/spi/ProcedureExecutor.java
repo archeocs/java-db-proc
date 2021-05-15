@@ -4,4 +4,8 @@ public interface ProcedureExecutor {
   Procedure getProcedure(String signature);
 
   void shutdown();
+
+  void commit();
+
+  void rollback();
 }
