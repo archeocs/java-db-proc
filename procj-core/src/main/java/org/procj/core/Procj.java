@@ -17,16 +17,16 @@ public class Procj {
 
   private String resolveProviderName(Class<?> cls) {
     final Bundle ann = cls.getAnnotation(Bundle.class);
+    if (ann == null) {
+      throw new IllegalArgumentException(
+          "Annotation " + Bundle.class.getCanonicalName() + " is required");
+    }
     return ann != null ? ann.provider() : null;
   }
 
   @SuppressWarnings("unchecked")
   public <T> T create(Class<T> cls) {
     final String name = resolveProviderName(cls);
-    if (name == null) {
-      throw new IllegalArgumentException(
-          "Annotation " + Bundle.class.getCanonicalName() + " is required");
-    }
     final ProcedureExecutorProvider provider = loader.getProvider(name);
     return (T)
         Proxy.newProxyInstance(
