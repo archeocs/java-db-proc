@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Properties;
 import java.util.UUID;
-
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
