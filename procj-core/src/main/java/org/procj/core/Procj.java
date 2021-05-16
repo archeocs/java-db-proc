@@ -3,6 +3,7 @@ package org.procj.core;
 import java.lang.reflect.Proxy;
 import java.util.Properties;
 import org.procj.core.annotations.Bundle;
+import org.procj.core.annotations.ConfigProperty;
 import org.procj.provider.spi.ProcedureExecutorProvider;
 import org.procj.provider.spi.ProviderLoader;
 
@@ -15,24 +16,32 @@ public class Procj {
     this.loader = loader;
   }
 
-  private String resolveProviderName(Class<?> cls) {
+  private Bundle getBundle(Class<?> cls) {
     final Bundle ann = cls.getAnnotation(Bundle.class);
     if (ann == null) {
       throw new IllegalArgumentException(
           "Annotation " + Bundle.class.getCanonicalName() + " is required");
     }
-    return ann.provider();
+    return ann;
+  }
+
+  private Properties executorProperties(Bundle bundle) {
+    Properties props = new Properties();
+    for (ConfigProperty cfg : bundle.properties()) {
+      props.setProperty(cfg.name(), cfg.value());
+    }
+    return props;
   }
 
   @SuppressWarnings("unchecked")
   public <T> T create(Class<T> cls) {
-    final String name = resolveProviderName(cls);
-    final ProcedureExecutorProvider provider = loader.getProvider(name);
+    Bundle bundle = getBundle(cls);
+    final ProcedureExecutorProvider provider = loader.getProvider(bundle.provider());
     return (T)
         Proxy.newProxyInstance(
             cls.getClassLoader(),
             new Class<?>[] {cls},
-            new ProcedureInvocationHandler(provider.initExecutor(new Properties())));
+            new ProcedureInvocationHandler(provider.initExecutor(executorProperties(bundle))));
   }
 
   public static Procj getInstance() {

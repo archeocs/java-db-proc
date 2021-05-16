@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.procj.core.annotations.Bundle;
+import org.procj.core.annotations.ConfigProperty;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
 import org.procj.core.annotations.TxRollback;
@@ -42,7 +43,9 @@ public class ProcjTest {
     final TestBundle bundle = underTest.create(TestBundle.class);
 
     assertThat(bundle).isNotNull();
-    verify(provider).initExecutor(new Properties());
+    Properties expectedProps = new Properties();
+    expectedProps.setProperty("config-prop", "config-value");
+    verify(provider).initExecutor(expectedProps);
   }
 
   @Test
@@ -105,7 +108,7 @@ public class ProcjTest {
 
   @Bundle(
       provider = "test-provider",
-      properties = {})
+      properties = {@ConfigProperty(name = "config-prop", value = "config-value")})
   interface TestBundle {
 
     @ProcedureConfig(name = "test-procedure")

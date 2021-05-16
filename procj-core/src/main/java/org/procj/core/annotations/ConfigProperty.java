@@ -8,4 +8,8 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface ConfigProperty {}
+public @interface ConfigProperty {
+  String name();
+
+  String value();
+}
