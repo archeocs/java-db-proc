@@ -96,7 +96,7 @@ public class ProcjTest {
     when(provider.initExecutor(any())).thenReturn(executor);
     if (returnValue != null) {
       when(executor.getProcedure("test-procedure")).thenReturn(procedure);
-      when(procedure.getReturnValue()).thenReturn(returnValue);
+      when(procedure.getScalar()).thenReturn(returnValue);
     }
   }
 

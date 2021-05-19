@@ -46,7 +46,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
         }
       }
       procedure.execute();
-      return procedure.getReturnValue();
+      return procedure.getScalar();
     }
   }
 }

@@ -3,6 +3,7 @@ package org.procj.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -81,5 +82,15 @@ public class ProcedureInvocationHandlerTest {
 
     @Override
     public void execute() {}
+
+    @Override
+    public Object getScalar() {
+      return "return-value";
+    }
+
+    @Override
+    public Collection<?> getAll() {
+      return null;
+    }
   }
 }

@@ -1,5 +1,6 @@
 package org.procj.provider.hibernate;
 
+import java.util.Collection;
 import javax.persistence.ParameterMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -11,7 +12,7 @@ import org.procj.provider.spi.Procedure;
 class HibernateProcedure implements Procedure {
 
   private final ProcedureCall procedure;
-  private Object result;
+  private Collection<?> result;
   private final Session session;
 
   HibernateProcedure(ProcedureCall procedure, Session session) {
@@ -45,5 +46,18 @@ class HibernateProcedure implements Procedure {
     } finally {
       procedure.unwrap(ProcedureOutputs.class).release();
     }
+  }
+
+  @Override
+  public Object getScalar() {
+    if (result != null) {
+      return result.iterator().next();
+    }
+    return result;
+  }
+
+  @Override
+  public Collection<?> getAll() {
+    return result;
   }
 }
