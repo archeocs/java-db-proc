@@ -13,16 +13,17 @@ public interface Procedure {
   Collection<?> getAll();
 
   void execute();
-  
+
   /**
    * optional
+   *
    * @return
    */
   default Collection<Map<String, ?>> getAllMap() {
-	  throw new UnsupportedOperationException("Reading result rows as map is not supported");
+    throw new UnsupportedOperationException("Reading result rows as map is not supported");
   }
-  
+
   default boolean isRowsAsMapSupported() {
-	  return false;
+    return false;
   }
 }
