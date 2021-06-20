@@ -29,24 +29,48 @@ class ProcedureInvocationHandler implements InvocationHandler {
     return m.getAnnotation(TxRollback.class) != null;
   }
 
+  private <T> T tryInvoke(ThrowableSupplier<T> fn, String failureMessage) {
+    try {
+      return fn.get();
+    } catch (Exception e) {
+      throw new ProcjException(failureMessage, e);
+    }
+  }
+
+  private Object executeScalar(String name, Object[] args) throws Exception {
+    final Procedure procedure = executor.getProcedure(name);
+    if (args != null) {
+      for (int i = 0; i < args.length; i++) {
+        procedure.setParameterIn(i, args[i]);
+      }
+    }
+    procedure.execute();
+    return procedure.getScalar();
+  }
+
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (isCommit(method)) {
-      executor.commit();
-      return null;
+      return tryInvoke(
+          () -> {
+            executor.commit();
+            return null;
+          },
+          "Commit");
     } else if (isRollback(method)) {
-      executor.rollback();
-      return null;
+      return tryInvoke(
+          () -> {
+            executor.rollback();
+            return null;
+          },
+          "Rollback");
     } else {
       final String name = resolveProcedureName(method);
-      final Procedure procedure = executor.getProcedure(name);
-      if (args != null) {
-        for (int i = 0; i < args.length; i++) {
-          procedure.setParameterIn(i, args[i]);
-        }
-      }
-      procedure.execute();
-      return procedure.getScalar();
+      return tryInvoke(
+          () -> {
+            return executeScalar(name, args);
+          },
+          "Scalar value");
     }
   }
 }

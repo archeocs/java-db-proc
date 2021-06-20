@@ -1,7 +1,6 @@
 package org.procj.provider.jdbc;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 
@@ -14,34 +13,22 @@ public class JdbcProcedureExecutor implements ProcedureExecutor {
   }
 
   @Override
-  public Procedure getProcedure(String signature) {
+  public Procedure getProcedure(String signature) throws Exception {
     return new JdbcProcedure(signature, connection);
   }
 
   @Override
-  public void shutdown() {
-    try {
-      connection.close();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+  public void shutdown() throws Exception {
+    connection.close();
   }
 
   @Override
-  public void commit() {
-    try {
-      connection.commit();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+  public void commit() throws Exception {
+    connection.commit();
   }
 
   @Override
-  public void rollback() {
-    try {
-      connection.rollback();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+  public void rollback() throws Exception {
+    connection.rollback();
   }
 }

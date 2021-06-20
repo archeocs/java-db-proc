@@ -51,7 +51,7 @@ public class JdbcProcedureExecutorProviderIT {
   }
 
   @AfterEach
-  public void shutDown() {
+  public void shutDown() throws Exception {
     testExecutor.shutdown();
   }
 

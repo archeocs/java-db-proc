@@ -4,22 +4,22 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface Procedure {
-  void setParameterIn(int index, Object value);
+  void setParameterIn(int index, Object value) throws Exception;
 
-  Object getReturnValue();
+  Object getReturnValue() throws Exception;
 
-  Object getScalar();
+  Object getScalar() throws Exception;
 
-  Collection<?> getAll();
+  Collection<?> getAll() throws Exception;
 
-  void execute();
+  void execute() throws Exception;
 
   /**
    * optional
    *
    * @return
    */
-  default Collection<Map<String, ?>> getAllMap() {
+  default Collection<Map<String, ?>> getAllMap() throws Exception {
     throw new UnsupportedOperationException("Reading result rows as map is not supported");
   }
 

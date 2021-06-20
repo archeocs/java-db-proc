@@ -53,7 +53,7 @@ public class HibernateProcedureExecutorProviderIT {
   }
 
   @AfterEach
-  public void shutDown() {
+  public void shutDown() throws Exception {
     testExecutor.shutdown();
   }
 

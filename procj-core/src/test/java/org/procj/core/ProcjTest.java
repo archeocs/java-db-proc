@@ -62,7 +62,7 @@ public class ProcjTest {
   }
 
   @Test
-  public void shouldExecuteProcedure() {
+  public void shouldExecuteProcedure() throws Exception {
     String expectedReturn = UUID.randomUUID().toString();
     setupExecutor(expectedReturn);
 
@@ -72,7 +72,7 @@ public class ProcjTest {
   }
 
   @Test
-  public void shouldCommitTx() {
+  public void shouldCommitTx() throws Exception {
     setupExecutor(null);
 
     TestBundle bundle = underTest.create(TestBundle.class);
@@ -82,7 +82,7 @@ public class ProcjTest {
   }
 
   @Test
-  public void shouldRollbackTx() {
+  public void shouldRollbackTx() throws Exception {
     setupExecutor(null);
 
     TestBundle bundle = underTest.create(TestBundle.class);
@@ -91,7 +91,7 @@ public class ProcjTest {
     verify(executor).rollback();
   }
 
-  private void setupExecutor(String returnValue) {
+  private void setupExecutor(String returnValue) throws Exception {
     when(loader.getProvider("test-provider")).thenReturn(provider);
     when(provider.initExecutor(any())).thenReturn(executor);
     if (returnValue != null) {

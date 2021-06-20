@@ -1,11 +1,11 @@
 package org.procj.provider.spi;
 
 public interface ProcedureExecutor {
-  Procedure getProcedure(String signature);
+  Procedure getProcedure(String signature) throws Exception;
 
-  void shutdown();
+  void shutdown() throws Exception;
 
-  void commit();
+  void commit() throws Exception;
 
-  void rollback();
+  void rollback() throws Exception;
 }
