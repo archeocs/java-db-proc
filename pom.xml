@@ -11,7 +11,6 @@
 
   <modules>
     <module>procj-core</module>
-    <module>procj-provider-hibernate</module>
     <module>procj-provider-spi</module>
     <module>procj-provider-jdbc</module>
   </modules>
