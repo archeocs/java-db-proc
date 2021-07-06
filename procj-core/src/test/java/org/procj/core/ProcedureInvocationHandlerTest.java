@@ -35,7 +35,7 @@ public class ProcedureInvocationHandlerTest {
     final Object result =
         underTest.invoke(proxy, TestBundle.class.getMethod("testProcedure"), new Object[] {"t1"});
     assertThat(result).isEqualTo("return-value");
-    assertThat(procedure.inParameters).containsEntry(0, "t1");
+    assertThat(procedure.inParameters).containsEntry(1, "t1");
   }
 
   @Test

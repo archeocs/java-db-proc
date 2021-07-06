@@ -42,7 +42,7 @@ public class JdbcProcedure implements Procedure {
   @Override
   public Object getScalar() {
     try {
-      if (result.next()) {
+      if (result != null && result.next()) {
         Object value = result.getObject(1);
         result.close();
         return value;
@@ -90,6 +90,9 @@ public class JdbcProcedure implements Procedure {
     try {
       stmt = connection.prepareCall(renderStatement());
       for (int i = 1; i < maxParamIndex + 1; i++) {
+        if (!parameters.containsKey(i)) {
+          throw new IllegalStateException("Missing parameter " + i);
+        }
         stmt.setObject(i, parameters.get(i));
       }
       boolean isRs = stmt.execute();

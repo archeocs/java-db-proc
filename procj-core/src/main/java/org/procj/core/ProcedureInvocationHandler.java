@@ -41,7 +41,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
     final Procedure procedure = executor.getProcedure(name);
     if (args != null) {
       for (int i = 0; i < args.length; i++) {
-        procedure.setParameterIn(i, args[i]);
+        procedure.setParameterIn(i + 1, args[i]);
       }
     }
     procedure.execute();
