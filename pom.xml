@@ -13,6 +13,7 @@
     <module>procj-core</module>
     <module>procj-provider-spi</module>
     <module>procj-provider-jdbc</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
