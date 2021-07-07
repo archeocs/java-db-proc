@@ -1,21 +1,17 @@
 package org.procj.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Properties;
 import java.util.UUID;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.procj.core.annotations.Bundle;
-import org.procj.core.annotations.ConfigProperty;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
 import org.procj.core.annotations.TxRollback;
@@ -39,26 +35,14 @@ public class ProcjTest {
 
   @Test
   public void shouldCreateBundle() {
-    when(loader.getProvider("test-provider")).thenReturn(provider);
-    final TestBundle bundle = underTest.create(TestBundle.class);
-
-    assertThat(bundle).isNotNull();
     Properties expectedProps = new Properties();
     expectedProps.setProperty("config-prop", "config-value");
+    when(loader.getProvider("test-provider")).thenReturn(provider);
+    final TestBundle bundle = underTest.create(TestBundle.class, "test-provider", expectedProps);
+
+    assertThat(bundle).isNotNull();
+
     verify(provider).initExecutor(expectedProps);
-  }
-
-  @Test
-  public void shouldFailWhenBundleAnnotationIsMissing() {
-    assertThatThrownBy(
-            new ThrowableAssert.ThrowingCallable() {
-
-              @Override
-              public void call() throws Throwable {
-                underTest.create(TestBundleWithoutAnnotation.class);
-              }
-            })
-        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -66,7 +50,7 @@ public class ProcjTest {
     String expectedReturn = UUID.randomUUID().toString();
     setupExecutor(expectedReturn);
 
-    TestBundle bundle = underTest.create(TestBundle.class);
+    TestBundle bundle = underTest.create(TestBundle.class, "test-provider", new Properties());
     String result = bundle.testProcedure();
     assertThat(result).isEqualTo(expectedReturn);
   }
@@ -75,7 +59,7 @@ public class ProcjTest {
   public void shouldCommitTx() throws Exception {
     setupExecutor(null);
 
-    TestBundle bundle = underTest.create(TestBundle.class);
+    TestBundle bundle = underTest.create(TestBundle.class, "test-provider", new Properties());
     bundle.testCommit();
 
     verify(executor).commit();
@@ -85,7 +69,7 @@ public class ProcjTest {
   public void shouldRollbackTx() throws Exception {
     setupExecutor(null);
 
-    TestBundle bundle = underTest.create(TestBundle.class);
+    TestBundle bundle = underTest.create(TestBundle.class, "test-provider", new Properties());
     bundle.testRollback();
 
     verify(executor).rollback();
@@ -100,15 +84,6 @@ public class ProcjTest {
     }
   }
 
-  interface TestBundleWithoutAnnotation {
-
-    @ProcedureConfig(name = "test-procedure")
-    void testProcedure();
-  }
-
-  @Bundle(
-      provider = "test-provider",
-      properties = {@ConfigProperty(name = "config-prop", value = "config-value")})
   interface TestBundle {
 
     @ProcedureConfig(name = "test-procedure")

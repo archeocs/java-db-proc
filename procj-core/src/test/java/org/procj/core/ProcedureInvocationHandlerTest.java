@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.procj.core.annotations.Bundle;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
 import org.procj.core.annotations.TxRollback;
@@ -33,7 +32,7 @@ public class ProcedureInvocationHandlerTest {
     when(executor.getProcedure("test-procedure")).thenReturn(procedure);
 
     final Object result =
-        underTest.invoke(proxy, TestBundle.class.getMethod("testProcedure"), new Object[] {"t1"});
+        underTest.invoke(proxy, Test.class.getMethod("testProcedure"), new Object[] {"t1"});
     assertThat(result).isEqualTo("return-value");
     assertThat(procedure.inParameters).containsEntry(1, "t1");
   }
@@ -66,9 +65,6 @@ public class ProcedureInvocationHandlerTest {
         });
   }
 
-  @Bundle(
-      provider = "test-provider",
-      properties = {})
   interface TestBundle {
 
     @ProcedureConfig(name = "test-procedure")
