@@ -4,7 +4,7 @@ import java.util.Properties;
 
 public interface ProcedureExecutorProvider {
 
-  ProcedureExecutor initExecutor(Properties properties);
+  ProcedureExecutor initExecutor(Properties properties, ExecutorConfig config);
 
   String getName();
 }

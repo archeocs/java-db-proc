@@ -45,4 +45,56 @@ public class ProcjIT {
 
     assertThat(countAfter).isEqualTo(countBefore.longValue() + 1);
   }
+
+  @Test
+  public void shouldRollbackTransaction() {
+    Properties config = new Properties();
+    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
+    config.setProperty("url", MYSQL.getJdbcUrl());
+    config.setProperty("user", MYSQL.getUsername());
+    config.setProperty("password", MYSQL.getPassword());
+    config.setProperty("useSSL", "false");
+    TxBooksManager manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
+
+    Number countBefore = manager.countBooks();
+
+    manager.addBook("Test book TX");
+
+    Number countAfter = manager.countBooks();
+
+    assertThat(countAfter).isEqualTo(countBefore.longValue() + 1);
+
+    manager.rollback();
+
+    Number countRollback = manager.countBooks();
+
+    assertThat(countRollback).isEqualTo(countBefore.longValue());
+  }
+
+  @Test
+  public void shouldCommitTransaction() {
+    Properties config = new Properties();
+    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
+    config.setProperty("url", MYSQL.getJdbcUrl());
+    config.setProperty("user", MYSQL.getUsername());
+    config.setProperty("password", MYSQL.getPassword());
+    config.setProperty("useSSL", "false");
+    TxBooksManager manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
+
+    Number countBefore = manager.countBooks();
+
+    manager.addBook("Test book TX");
+
+    Number countAfter = manager.countBooks();
+
+    assertThat(countAfter).isEqualTo(countBefore.longValue() + 1);
+
+    manager.commit();
+
+    manager.rollback(); // this action doesn't change anything
+
+    Number countRollback = manager.countBooks();
+
+    assertThat(countRollback).isEqualTo(countBefore.longValue() + 1);
+  }
 }
