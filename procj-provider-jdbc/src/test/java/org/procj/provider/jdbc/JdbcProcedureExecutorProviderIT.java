@@ -8,8 +8,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -119,11 +123,25 @@ public class JdbcProcedureExecutorProviderIT {
     final Procedure proc = testExecutor.getProcedure("get_src");
     proc.execute();
     final List<Object> rv = (List<Object>) proc.getReturnValue();
-    final List<Object> expected =
-        asList(asList(1, "A"), asList(2, "B"), asList(3, "C"), asList(4, "D"), asList(5, "E"));
+    List<Object[]> expected =
+        asList(asList(1L, "A"), asList(2L, "B"), asList(3L, "C"), asList(4L, "D"), asList(5L, "E"))
+            .stream()
+            .map(e -> e.toArray())
+            .collect(Collectors.toList());
+    assertThat(rv).containsAll(expected);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void shouldReadFromCursorAsMap() throws Exception {
+    testExecutor = setupExecutor(true);
+    final Procedure proc = testExecutor.getProcedure("get_src");
+    proc.execute();
+    final Collection<Map<String, ?>> rv = proc.getAllMap();
+    List<Map<String, ?>> expected = asList(mapRow("ID", 1L, "STR", "A"));
     assertThat(rv).hasSize(5);
-    for (final Object e : expected) {
-      assertThat(expected).contains(e);
+    for (final Map<String, ?> e : expected) {
+      assertThat(rv).contains(e);
     }
   }
 
@@ -163,5 +181,12 @@ public class JdbcProcedureExecutorProviderIT {
 
   private ProcedureExecutor setupExecutor(boolean autoCommit) {
     return provider.initExecutor(conProps, ExecutorConfig.builder().autoCommit(autoCommit).build());
+  }
+
+  private Map<String, Object> mapRow(String k1, Object v1, String k2, Object v2) {
+    HashMap<String, Object> map = new HashMap<>();
+    map.put(k1, v1);
+    map.put(k2, v2);
+    return map;
   }
 }

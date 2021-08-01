@@ -12,6 +12,13 @@ import org.procj.provider.spi.ProcedureExecutor;
 @AllArgsConstructor
 class ProcedureInvocationHandler implements InvocationHandler {
 
+  private enum ReturnType {
+    COLLECTION,
+    MAP,
+    VOID,
+    OBJECT;
+  }
+
   private final ProcedureExecutor executor;
 
   private String resolveProcedureName(Method m) {
@@ -36,6 +43,18 @@ class ProcedureInvocationHandler implements InvocationHandler {
   }
 
   private Object executeScalar(String name, Object[] args) throws Exception {
+    return prepareProcedure(name, args).getScalar();
+  }
+
+  private Object executeMap(String name, Object[] args) throws Exception {
+    return prepareProcedure(name, args).getAllMap();
+  }
+
+  private Object executeCollection(String name, Object[] args) throws Exception {
+    return prepareProcedure(name, args).getAll();
+  }
+
+  private Procedure prepareProcedure(String name, Object[] args) throws Exception {
     final Procedure procedure = executor.getProcedure(name);
     if (args != null) {
       for (int i = 0; i < args.length; i++) {
@@ -43,7 +62,20 @@ class ProcedureInvocationHandler implements InvocationHandler {
       }
     }
     procedure.execute();
-    return procedure.getScalar();
+    return procedure;
+  }
+
+  private ReturnType resolveReturnType(Method m) {
+    Class<?> cls = m.getReturnType();
+    String cn = cls.getCanonicalName();
+    if (cn.equals("void")) {
+      return ReturnType.VOID;
+    } else if (cn.equals("java.util.Map")) {
+      return ReturnType.MAP;
+    } else if (cn.equals("java.util.Collection")) {
+      return ReturnType.COLLECTION;
+    }
+    return ReturnType.OBJECT;
   }
 
   @Override
@@ -64,9 +96,20 @@ class ProcedureInvocationHandler implements InvocationHandler {
           "Rollback");
     } else {
       final String name = resolveProcedureName(method);
+      ReturnType rt = resolveReturnType(method);
       return tryInvoke(
           () -> {
-            return executeScalar(name, args);
+            switch (rt) {
+              case VOID:
+              case OBJECT:
+                return executeScalar(name, args);
+              case COLLECTION:
+                return executeCollection(name, args);
+              case MAP:
+                return executeMap(name, args);
+              default:
+                return executeScalar(name, args);
+            }
           },
           "Scalar value");
     }

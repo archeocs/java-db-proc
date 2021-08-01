@@ -2,9 +2,12 @@ package org.procj.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,32 @@ public class ProcedureInvocationHandlerTest {
         underTest.invoke(proxy, TestBundle.class.getMethod("testProcedure"), new Object[] {"t1"});
     assertThat(result).isEqualTo("return-value");
     assertThat(procedure.inParameters).containsEntry(1, "t1");
+  }
+
+  @Test
+  public void shouldExecuteProcedureAndReturnMap() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure();
+    when(executor.getProcedure("test-procedure-map")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(
+            proxy, TestBundle.class.getMethod("testProcedureMap"), new Object[] {"t1"});
+    assertThat(result).isEqualTo(Arrays.asList(Collections.singletonMap("id", "a")));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void shouldExecuteProcedureAndReturnCollection() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure();
+    when(executor.getProcedure("test-procedure-col")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(
+            proxy, TestBundle.class.getMethod("testProcedureCol"), new Object[] {"t1"});
+    assertThat((Collection) result)
+        .containsAll(Collections.singletonList(new Object[] {"a", "b", "c"}));
   }
 
   @Test
@@ -69,6 +98,17 @@ public class ProcedureInvocationHandlerTest {
 
     @ProcedureConfig(name = "test-procedure")
     void testProcedure();
+
+    @ProcedureConfig(name = "test-procedure-obj")
+    Object testProcedureObj();
+
+    @SuppressWarnings("rawtypes")
+    @ProcedureConfig(name = "test-procedure-map")
+    Map testProcedureMap();
+
+    @SuppressWarnings("rawtypes")
+    @ProcedureConfig(name = "test-procedure-col")
+    Collection testProcedureCol();
 
     @TxCommit
     void testCommit();
@@ -127,7 +167,7 @@ public class ProcedureInvocationHandlerTest {
       if (error) {
         throw new Exception("Get all");
       }
-      return null;
+      return Collections.singletonList(new Object[] {"a", "b", "c"});
     }
 
     @Override
@@ -135,7 +175,8 @@ public class ProcedureInvocationHandlerTest {
       if (error) {
         throw new Exception("Get map");
       }
-      return null;
+      Map<String, String> row = Collections.singletonMap("id", "a");
+      return Arrays.asList(row);
     }
   }
 }

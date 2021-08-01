@@ -73,6 +73,34 @@ public class JdbcProcedure implements Procedure {
     }
   }
 
+  @Override
+  public Collection<Map<String, ?>> getAllMap() throws Exception {
+    if (result == null) {
+      return null;
+    }
+    try {
+      ResultSetMetaData md = result.getMetaData();
+      List<Map<String, ?>> rows = new ArrayList<>();
+      int cc = md.getColumnCount();
+      while (result.next()) {
+        HashMap<String, Object> row = new HashMap<>();
+        for (int i = 1; i <= cc; i++) {
+          String cn = md.getColumnName(i);
+          row.put(cn, result.getObject(i));
+        }
+        rows.add(row);
+      }
+      return rows;
+    } finally {
+      result.close();
+    }
+  }
+
+  @Override
+  public boolean isRowsAsMapSupported() {
+    return true;
+  }
+
   private String renderStatement() {
     StringBuilder builder = new StringBuilder();
     builder.append(" call ").append(name).append("(");
