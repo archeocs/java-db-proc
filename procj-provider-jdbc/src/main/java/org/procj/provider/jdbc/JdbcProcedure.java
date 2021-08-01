@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 import org.procj.provider.spi.Procedure;
 
+@RequiredArgsConstructor
 public class JdbcProcedure implements Procedure {
 
   private final Connection connection;
@@ -22,11 +24,6 @@ public class JdbcProcedure implements Procedure {
   private ResultSet result;
   private PreparedStatement stmt;
   private final String name;
-
-  public JdbcProcedure(String name, Connection connection) {
-    this.connection = connection;
-    this.name = name;
-  }
 
   @Override
   public void setParameterIn(int index, Object value) {

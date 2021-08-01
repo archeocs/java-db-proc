@@ -1,20 +1,18 @@
 package org.procj.provider.jdbc;
 
 import java.sql.Connection;
+import lombok.AllArgsConstructor;
 import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 
+@AllArgsConstructor
 public class JdbcProcedureExecutor implements ProcedureExecutor {
 
   private final Connection connection;
 
-  public JdbcProcedureExecutor(Connection connection) {
-    this.connection = connection;
-  }
-
   @Override
   public Procedure getProcedure(String signature) throws Exception {
-    return new JdbcProcedure(signature, connection);
+    return new JdbcProcedure(connection, signature);
   }
 
   @Override

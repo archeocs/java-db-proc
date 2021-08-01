@@ -2,19 +2,17 @@ package org.procj.core;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import lombok.AllArgsConstructor;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
 import org.procj.core.annotations.TxRollback;
 import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 
+@AllArgsConstructor
 class ProcedureInvocationHandler implements InvocationHandler {
 
   private final ProcedureExecutor executor;
-
-  public ProcedureInvocationHandler(ProcedureExecutor executor) {
-    this.executor = executor;
-  }
 
   private String resolveProcedureName(Method m) {
     final ProcedureConfig ann = m.getAnnotation(ProcedureConfig.class);

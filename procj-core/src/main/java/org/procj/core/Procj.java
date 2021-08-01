@@ -3,19 +3,17 @@ package org.procj.core;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Properties;
+import lombok.AllArgsConstructor;
 import org.procj.core.annotations.TxCommit;
 import org.procj.provider.spi.ExecutorConfig;
 import org.procj.provider.spi.ProcedureExecutorProvider;
 import org.procj.provider.spi.ProviderLoader;
 
+@AllArgsConstructor
 public class Procj {
 
   private final ProviderLoader loader;
   private static Procj INSTANCE;
-
-  Procj(ProviderLoader loader) {
-    this.loader = loader;
-  }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private boolean hasMethodWithAnnotation(Class<?> cls, Class ann) {
