@@ -2,6 +2,8 @@ package org.procj.core;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import lombok.AllArgsConstructor;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
@@ -46,7 +48,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
     return prepareProcedure(name, args).getScalar();
   }
 
-  private Object executeMap(String name, Object[] args) throws Exception {
+  private Object executeCollectionMap(String name, Object[] args) throws Exception {
     return prepareProcedure(name, args).getAllMap();
   }
 
@@ -70,10 +72,19 @@ class ProcedureInvocationHandler implements InvocationHandler {
     String cn = cls.getCanonicalName();
     if (cn.equals("void")) {
       return ReturnType.VOID;
-    } else if (cn.equals("java.util.Map")) {
-      return ReturnType.MAP;
     } else if (cn.equals("java.util.Collection")) {
-      return ReturnType.COLLECTION;
+      Type gt = m.getGenericReturnType();
+      if (gt instanceof ParameterizedType) {
+        ParameterizedType pt = (ParameterizedType) gt;
+        Type at = pt.getActualTypeArguments()[0];
+        if (at.getTypeName().startsWith("java.util.Map")) {
+          return ReturnType.MAP;
+        } else {
+          return ReturnType.COLLECTION;
+        }
+      } else {
+        return ReturnType.COLLECTION;
+      }
     }
     return ReturnType.OBJECT;
   }
@@ -106,7 +117,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
               case COLLECTION:
                 return executeCollection(name, args);
               case MAP:
-                return executeMap(name, args);
+                return executeCollectionMap(name, args);
               default:
                 return executeScalar(name, args);
             }

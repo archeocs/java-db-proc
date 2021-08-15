@@ -12,3 +12,9 @@ CREATE PROCEDURE add_book (title VARCHAR(100))
 BEGIN
   INSERT INTO books(title) VALUES (title);
 END;
+
+
+CREATE PROCEDURE get_the_best () 
+BEGIN
+	SELECT * FROM books order by id desc;
+END; 

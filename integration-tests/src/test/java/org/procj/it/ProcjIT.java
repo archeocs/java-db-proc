@@ -2,9 +2,13 @@ package org.procj.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.procj.core.Procj;
 import org.testcontainers.containers.MySQLContainer;
@@ -14,6 +18,7 @@ public class ProcjIT {
 
   public static final DockerImageName MYSQL_IMAGE = DockerImageName.parse("mysql:5.7.22");
   private static MySQLContainer<?> MYSQL;
+  private TxBooksManager manager;
 
   @SuppressWarnings({"resource", "rawtypes"})
   @BeforeAll
@@ -26,17 +31,26 @@ public class ProcjIT {
   public static void shutodown() {
     MYSQL.stop();
   }
+  
+  @BeforeEach
+  public void intManager() {
+	  Properties config = new Properties();
+	    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
+	    config.setProperty("url", MYSQL.getJdbcUrl());
+	    config.setProperty("user", MYSQL.getUsername());
+	    config.setProperty("password", MYSQL.getPassword());
+	    config.setProperty("useSSL", "false");
+	    manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
+  }
+  
+  @AfterEach
+  public void rollbackManager() {
+	  manager.rollback();
+  }
 
   @Test
   public void shouldAddBookToDatabase() {
-    Properties config = new Properties();
-    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
-    config.setProperty("url", MYSQL.getJdbcUrl());
-    config.setProperty("user", MYSQL.getUsername());
-    config.setProperty("password", MYSQL.getPassword());
-    config.setProperty("useSSL", "false");
-    BooksManager manager = Procj.getInstance().create(BooksManager.class, "jdbc", config);
-
+    
     Number countBefore = manager.countBooks();
 
     manager.addBook("Test book");
@@ -47,15 +61,19 @@ public class ProcjIT {
   }
 
   @Test
-  public void shouldRollbackTransaction() {
-    Properties config = new Properties();
-    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
-    config.setProperty("url", MYSQL.getJdbcUrl());
-    config.setProperty("user", MYSQL.getUsername());
-    config.setProperty("password", MYSQL.getPassword());
-    config.setProperty("useSSL", "false");
-    TxBooksManager manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
+  public void shouldGetListOfBooks() {
+    manager.addBook("B1");
+    manager.addBook("B2");
+    manager.addBook("B3");
 
+    Collection<Map<String, Object>> all = manager.getTheBest();
+    
+    assertThat(all).hasSize(3);
+    
+  }
+
+  @Test
+  public void shouldRollbackTransaction() {
     Number countBefore = manager.countBooks();
 
     manager.addBook("Test book TX");
@@ -73,13 +91,6 @@ public class ProcjIT {
 
   @Test
   public void shouldCommitTransaction() {
-    Properties config = new Properties();
-    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
-    config.setProperty("url", MYSQL.getJdbcUrl());
-    config.setProperty("user", MYSQL.getUsername());
-    config.setProperty("password", MYSQL.getPassword());
-    config.setProperty("useSSL", "false");
-    TxBooksManager manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
 
     Number countBefore = manager.countBooks();
 

@@ -104,7 +104,7 @@ public class ProcedureInvocationHandlerTest {
 
     @SuppressWarnings("rawtypes")
     @ProcedureConfig(name = "test-procedure-map")
-    Map testProcedureMap();
+    Collection<Map> testProcedureMap();
 
     @SuppressWarnings("rawtypes")
     @ProcedureConfig(name = "test-procedure-col")

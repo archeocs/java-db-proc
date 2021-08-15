@@ -131,7 +131,6 @@ public class JdbcProcedureExecutorProviderIT {
     assertThat(rv).containsAll(expected);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void shouldReadFromCursorAsMap() throws Exception {
     testExecutor = setupExecutor(true);
