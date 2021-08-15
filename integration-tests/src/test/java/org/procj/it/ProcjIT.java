@@ -31,26 +31,26 @@ public class ProcjIT {
   public static void shutodown() {
     MYSQL.stop();
   }
-  
+
   @BeforeEach
   public void intManager() {
-	  Properties config = new Properties();
-	    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
-	    config.setProperty("url", MYSQL.getJdbcUrl());
-	    config.setProperty("user", MYSQL.getUsername());
-	    config.setProperty("password", MYSQL.getPassword());
-	    config.setProperty("useSSL", "false");
-	    manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
+    Properties config = new Properties();
+    config.setProperty("jdbc.driver", MYSQL.getDriverClassName());
+    config.setProperty("url", MYSQL.getJdbcUrl());
+    config.setProperty("user", MYSQL.getUsername());
+    config.setProperty("password", MYSQL.getPassword());
+    config.setProperty("useSSL", "false");
+    manager = Procj.getInstance().create(TxBooksManager.class, "jdbc", config);
   }
-  
+
   @AfterEach
   public void rollbackManager() {
-	  manager.rollback();
+    manager.rollback();
   }
 
   @Test
   public void shouldAddBookToDatabase() {
-    
+
     Number countBefore = manager.countBooks();
 
     manager.addBook("Test book");
@@ -67,9 +67,8 @@ public class ProcjIT {
     manager.addBook("B3");
 
     Collection<Map<String, Object>> all = manager.getTheBest();
-    
+
     assertThat(all).hasSize(3);
-    
   }
 
   @Test
