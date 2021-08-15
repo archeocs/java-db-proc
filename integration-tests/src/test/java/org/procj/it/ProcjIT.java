@@ -3,6 +3,7 @@ package org.procj.it;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.junit.jupiter.api.AfterAll;
@@ -53,7 +54,7 @@ public class ProcjIT {
 
     Number countBefore = manager.countBooks();
 
-    manager.addBook("Test book");
+    manager.addBook("Test book", 1);
 
     Number countAfter = manager.countBooks();
 
@@ -62,20 +63,22 @@ public class ProcjIT {
 
   @Test
   public void shouldGetListOfBooks() {
-    manager.addBook("B1");
-    manager.addBook("B2");
-    manager.addBook("B3");
+    manager.addBook("List-Book_1", 5);
+    manager.addBook("List-Book_2", 10);
+    manager.addBook("List-Book_3", 15);
 
-    Collection<Map<String, Object>> all = manager.getTheBest();
+    Collection<Map<String, Object>> all = manager.searchBooks("List-Book");
 
-    assertThat(all).hasSize(3);
+    assertThat(all)
+        .hasSize(3)
+        .contains(book("List-Book_1", 5), book("List-Book_2", 10), book("List-Book_3", 15));
   }
 
   @Test
   public void shouldRollbackTransaction() {
     Number countBefore = manager.countBooks();
 
-    manager.addBook("Test book TX");
+    manager.addBook("Test book TX", 1);
 
     Number countAfter = manager.countBooks();
 
@@ -93,7 +96,7 @@ public class ProcjIT {
 
     Number countBefore = manager.countBooks();
 
-    manager.addBook("Test book TX");
+    manager.addBook("Test book TX", 1);
 
     Number countAfter = manager.countBooks();
 
@@ -106,5 +109,12 @@ public class ProcjIT {
     Number countRollback = manager.countBooks();
 
     assertThat(countRollback).isEqualTo(countBefore.longValue() + 1);
+  }
+
+  private Map<String, Object> book(String t, int s) {
+    Map<String, Object> b = new HashMap<>();
+    b.put("title", t);
+    b.put("score", s);
+    return b;
   }
 }
