@@ -1,15 +1,18 @@
 package org.procj.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.procj.core.annotations.ProcedureConfig;
@@ -35,7 +38,15 @@ public class ProcjTest {
 
   @Mock Procedure procedure;
 
-  @InjectMocks Procj underTest;
+  private HashMap<Object, ProcedureExecutor> executors;
+
+  Procj underTest;
+
+  @BeforeEach
+  public void setupProcJ() {
+    executors = new HashMap<>();
+    underTest = new Procj(loader, executors);
+  }
 
   @Test
   public void shouldCreateBundle() {
@@ -113,6 +124,46 @@ public class ProcjTest {
     bundle.testCommit();
 
     verify(executor).commit();
+  }
+
+  @Test
+  public void shouldShutdownRelatedExecutor() throws Exception {
+    when(loader.getProvider("test-provider")).thenReturn(provider);
+    ProcedureExecutor e1 = mock(ProcedureExecutor.class);
+    ProcedureExecutor e2 = mock(ProcedureExecutor.class);
+
+    Properties p1 = new Properties();
+    p1.put("e", "1");
+    Properties p2 = new Properties();
+    p2.put("e", "2");
+
+    when(provider.initExecutor(eq(p1), any())).thenReturn(e1);
+    when(provider.initExecutor(eq(p2), any())).thenReturn(e2);
+
+    TxBundleExtended b1 = underTest.create(TxBundleExtended.class, "test-provider", p1);
+    TxBundleExtended b2 = underTest.create(TxBundleExtended.class, "test-provider", p2);
+
+    assertThat(executors).containsEntry(b1, e1).containsEntry(b2, e2);
+
+    underTest.release(b2);
+    assertThat(executors).doesNotContainEntry(b2, e2).containsEntry(b1, e1);
+    verify(e2).shutdown();
+
+    underTest.release(b1);
+    assertThat(executors).isEmpty();
+    verify(e1).shutdown();
+  }
+
+  @Test
+  public void shouldReleaseProxy() throws Exception {
+    setupExecutor(null);
+    TxBundleExtended bundle =
+        underTest.create(TxBundleExtended.class, "test-provider", new Properties());
+    assertThat(executors).containsEntry(bundle, executor);
+
+    underTest.release(bundle);
+    assertThat(executors).isEmpty();
+    verify(executor).shutdown();
   }
 
   private void setupExecutor(String returnValue) throws Exception {

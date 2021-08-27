@@ -47,6 +47,7 @@ public class ProcjIT {
   @AfterEach
   public void rollbackManager() {
     manager.rollback();
+    Procj.getInstance().release(manager);
   }
 
   @Test

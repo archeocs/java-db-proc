@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.procj.core.annotations.ProcedureConfig;
 import org.procj.core.annotations.TxCommit;
@@ -22,6 +23,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
   }
 
   private final ProcedureExecutor executor;
+  private final UUID handlerId;
 
   private String resolveProcedureName(Method m) {
     final ProcedureConfig ann = m.getAnnotation(ProcedureConfig.class);
@@ -91,7 +93,14 @@ class ProcedureInvocationHandler implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    if (isCommit(method)) {
+    String mn = method.getName();
+    if (mn.equals("hashCode")) {
+      return handlerId.hashCode();
+    } else if (mn.equals("equals") && args.length == 1) {
+      return handlerId.equals(args[0]);
+    } else if (mn.equals("toString")) {
+      return getClass().getName() + "=" + handlerId.toString();
+    } else if (isCommit(method)) {
       return tryInvoke(
           () -> {
             executor.commit();
