@@ -171,7 +171,7 @@ public class ProcedureInvocationHandlerTest {
     }
 
     @Override
-    public Collection<Map<String, ?>> getAllMap() throws Exception {
+    public Collection<Map<String, ?>> allAsMap() throws Exception {
       if (error) {
         throw new Exception("Get map");
       }

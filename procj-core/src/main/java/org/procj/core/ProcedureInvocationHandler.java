@@ -51,7 +51,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
   }
 
   private Object executeCollectionMap(String name, Object[] args) throws Exception {
-    return prepareProcedure(name, args).getAllMap();
+    return prepareProcedure(name, args).allAsMap();
   }
 
   private Object executeCollection(String name, Object[] args) throws Exception {

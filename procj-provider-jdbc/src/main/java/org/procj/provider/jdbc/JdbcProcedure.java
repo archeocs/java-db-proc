@@ -74,7 +74,7 @@ public class JdbcProcedure implements Procedure {
   }
 
   @Override
-  public Collection<Map<String, ?>> getAllMap() throws Exception {
+  public Collection<Map<String, ?>> allAsMap() throws Exception {
     if (result == null) {
       return null;
     }

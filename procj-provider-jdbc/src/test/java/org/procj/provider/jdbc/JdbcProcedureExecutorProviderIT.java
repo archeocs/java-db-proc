@@ -136,7 +136,7 @@ public class JdbcProcedureExecutorProviderIT {
     testExecutor = setupExecutor(true);
     final Procedure proc = testExecutor.getProcedure("get_src");
     proc.execute();
-    final Collection<Map<String, ?>> rv = proc.getAllMap();
+    final Collection<Map<String, ?>> rv = proc.allAsMap();
     List<Map<String, ?>> expected = asList(mapRow("ID", 1L, "STR", "A"));
     assertThat(rv).hasSize(5);
     for (final Map<String, ?> e : expected) {

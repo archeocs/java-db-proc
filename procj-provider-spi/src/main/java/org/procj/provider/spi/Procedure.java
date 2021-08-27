@@ -19,7 +19,7 @@ public interface Procedure {
    *
    * @return
    */
-  default Collection<Map<String, ?>> getAllMap() throws Exception {
+  default Collection<Map<String, ?>> allAsMap() throws Exception {
     throw new UnsupportedOperationException("Reading result rows as map is not supported");
   }
 
