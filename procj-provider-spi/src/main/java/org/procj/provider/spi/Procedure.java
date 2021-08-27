@@ -6,24 +6,21 @@ import java.util.Map;
 public interface Procedure {
   void setParameterIn(int index, Object value) throws Exception;
 
-  Object getReturnValue() throws Exception;
+  default Object getReturnValue() throws Exception {
+    return all();
+  }
 
-  Object getScalar() throws Exception;
-
-  Collection<?> getAll() throws Exception;
+  default Object getScalar() throws Exception {
+    return first()[0];
+  }
 
   void execute() throws Exception;
 
-  /**
-   * optional
-   *
-   * @return
-   */
-  default Collection<Map<String, ?>> allAsMap() throws Exception {
-    throw new UnsupportedOperationException("Reading result rows as map is not supported");
-  }
+  Object[] first() throws Exception;
 
-  default boolean isRowsAsMapSupported() {
-    return false;
-  }
+  Collection<Object[]> all() throws Exception;
+
+  Map<String, ?> firstAsMap() throws Exception;
+
+  Collection<Map<String, ?>> allAsMap() throws Exception;
 }

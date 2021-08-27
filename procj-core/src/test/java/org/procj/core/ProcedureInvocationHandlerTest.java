@@ -36,7 +36,7 @@ public class ProcedureInvocationHandlerTest {
 
     final Object result =
         underTest.invoke(proxy, TestBundle.class.getMethod("testProcedure"), new Object[] {"t1"});
-    assertThat(result).isEqualTo("return-value");
+    assertThat(result).isNull();
     assertThat(procedure.inParameters).containsEntry(1, "t1");
   }
 
@@ -163,7 +163,7 @@ public class ProcedureInvocationHandlerTest {
     }
 
     @Override
-    public Collection<?> getAll() throws Exception {
+    public Collection<Object[]> all() throws Exception {
       if (error) {
         throw new Exception("Get all");
       }
@@ -177,6 +177,18 @@ public class ProcedureInvocationHandlerTest {
       }
       Map<String, String> row = Collections.singletonMap("id", "a");
       return Arrays.asList(row);
+    }
+
+    @Override
+    public Object[] first() throws Exception {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Map<String, ?> firstAsMap() throws Exception {
+      // TODO Auto-generated method stub
+      return null;
     }
   }
 }

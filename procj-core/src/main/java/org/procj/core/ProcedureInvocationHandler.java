@@ -55,7 +55,7 @@ class ProcedureInvocationHandler implements InvocationHandler {
   }
 
   private Object executeCollection(String name, Object[] args) throws Exception {
-    return prepareProcedure(name, args).getAll();
+    return prepareProcedure(name, args).all();
   }
 
   private Procedure prepareProcedure(String name, Object[] args) throws Exception {
@@ -121,6 +121,8 @@ class ProcedureInvocationHandler implements InvocationHandler {
           () -> {
             switch (rt) {
               case VOID:
+                prepareProcedure(name, args);
+                return null;
               case OBJECT:
                 return executeScalar(name, args);
               case COLLECTION:

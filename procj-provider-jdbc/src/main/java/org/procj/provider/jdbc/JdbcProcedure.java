@@ -32,26 +32,7 @@ public class JdbcProcedure implements Procedure {
   }
 
   @Override
-  public Object getReturnValue() {
-    return getAll();
-  }
-
-  @Override
-  public Object getScalar() {
-    try {
-      if (result != null && result.next()) {
-        Object value = result.getObject(1);
-        result.close();
-        return value;
-      }
-      return null;
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public Collection<?> getAll() {
+  public Collection<Object[]> all() {
     if (result == null) {
       return null;
     }
@@ -96,11 +77,6 @@ public class JdbcProcedure implements Procedure {
     }
   }
 
-  @Override
-  public boolean isRowsAsMapSupported() {
-    return true;
-  }
-
   private String renderStatement() {
     StringBuilder builder = new StringBuilder();
     builder.append(" call ").append(name).append("(");
@@ -131,6 +107,48 @@ public class JdbcProcedure implements Procedure {
       maxParamIndex = 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public Object[] first() throws Exception {
+    if (result == null) {
+      return null;
+    }
+    try {
+      ResultSetMetaData meta = result.getMetaData();
+      int cc = meta.getColumnCount();
+      Object[] row = new Object[cc];
+      if (result.next()) {
+        for (int i = 1; i <= cc; i++) {
+          row[i - 1] = result.getObject(i);
+        }
+      }
+      result.close();
+      return row;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public Map<String, ?> firstAsMap() throws Exception {
+    if (result == null) {
+      return null;
+    }
+    try {
+      ResultSetMetaData md = result.getMetaData();
+      Map<String, Object> row = new HashMap<>();
+      int cc = md.getColumnCount();
+      if (result.next()) {
+        for (int i = 1; i <= cc; i++) {
+          String cn = md.getColumnName(i);
+          row.put(cn, result.getObject(i));
+        }
+      }
+      return row;
+    } finally {
+      result.close();
     }
   }
 }
