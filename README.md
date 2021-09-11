@@ -31,6 +31,8 @@ rules to convert execution result to declared return type:
  
  2. When return type is declared as `java.util.ArrayList` or `java.util.HashSet` then
     called method will return all received rows converted with declared Parametrized type.
+    generic type is undefined, or is defined as `java.lang.Object` then each row is represented 
+    as `java.util.HashMap`
  
  
 ### Examples:

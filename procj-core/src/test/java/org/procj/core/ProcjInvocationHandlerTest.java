@@ -22,11 +22,11 @@ import org.procj.provider.spi.Procedure;
 import org.procj.provider.spi.ProcedureExecutor;
 
 @ExtendWith(MockitoExtension.class)
-public class ProcedureInvocationHandlerTest {
+public class ProcjInvocationHandlerTest {
 
   @Mock ProcedureExecutor executor;
 
-  @InjectMocks ProcedureInvocationHandler underTest;
+  @InjectMocks ProcjInvocationHandler underTest;
 
   @Test
   public void shouldCreateAndExecuteProcedure() throws Throwable {
@@ -52,7 +52,7 @@ public class ProcedureInvocationHandlerTest {
     assertThat(result).isEqualTo(Arrays.asList(Collections.singletonMap("id", "a")));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   public void shouldExecuteProcedureAndReturnCollection() throws Throwable {
     final Object proxy = new Object();
@@ -63,7 +63,7 @@ public class ProcedureInvocationHandlerTest {
         underTest.invoke(
             proxy, TestBundle.class.getMethod("testProcedureCol"), new Object[] {"t1"});
     assertThat((Collection) result)
-        .containsAll(Collections.singletonList(new Object[] {"a", "b", "c"}));
+        .containsAll(Collections.singletonList(Collections.singletonMap("id", "a")));
   }
 
   @Test
@@ -181,13 +181,11 @@ public class ProcedureInvocationHandlerTest {
 
     @Override
     public Object[] first() throws Exception {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public Map<String, ?> firstAsMap() throws Exception {
-      // TODO Auto-generated method stub
       return null;
     }
   }

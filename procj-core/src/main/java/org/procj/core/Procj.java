@@ -41,7 +41,7 @@ public class Procj {
             Proxy.newProxyInstance(
                 cls.getClassLoader(),
                 new Class<?>[] {cls},
-                new ProcedureInvocationHandler(executor, UUID.randomUUID()));
+                new ProcjInvocationHandler(executor, UUID.randomUUID()));
     executorsRegistry.put(proxy, executor);
     return proxy;
   }
