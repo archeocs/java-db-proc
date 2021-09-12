@@ -18,8 +18,11 @@ rules to convert execution result to declared return type:
    * when return type is `java.lang.String` then ProcJ return result of `String.valueOf`
      with first value from first row as argument,
  
-   * when return data-time type (such as `java.util.Date`, `java.time.LocalDateTime`, etc.) then
-     ProcJ return first value from first row converted to declared type,
+   * when return type is `java.util.Date`, `java.time.LocalDateTime`, `java.time.Instant`, 
+     or `java.time.LocalDate` then ProcJ return first value from first row converted to declared type,
+   
+   * when return type is `java.time.OffsetDateTime` then ProcJ return first value from first row
+     converted to OffsetDateTime at UTC time zone,
  
    * when return type is `java.util.HashMap` then first row is converted to `java.util.HashMap` 
      with column names as keys and row values as map values,
