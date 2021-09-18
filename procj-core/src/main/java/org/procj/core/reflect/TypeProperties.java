@@ -1,8 +1,13 @@
 package org.procj.core.reflect;
 
+import static org.procj.core.reflect.ScalarTypeHandler.getBoolean;
+import static org.procj.core.reflect.ScalarTypeHandler.getInteger;
+import static org.procj.core.reflect.ScalarTypeHandler.getNumber;
+import static org.procj.core.reflect.ScalarTypeHandler.getObject;
+import static org.procj.core.reflect.ScalarTypeHandler.getString;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +17,10 @@ import org.procj.core.ProcjException;
 
 @Getter
 public class TypeProperties {
+
+  private static final ScalarTypeHandler[] SCALARS = {
+    getBoolean(), getInteger(), getNumber(), getString(), getObject()
+  };
 
   private final Type runtimeType;
 
@@ -53,27 +62,29 @@ public class TypeProperties {
     return typeClass.isAssignableFrom(Object.class);
   }
 
-  public boolean isPrimitive() {
-    return typeClass.isPrimitive();
-  }
-
   public boolean isString() {
     return typeClass.isAssignableFrom(String.class);
   }
 
-  private boolean matchesTypes(Class<?>... other) {
-    return Arrays.stream(other).filter(o -> o.isAssignableFrom(typeClass)).count() > 0;
+  public boolean matches(Class<?> type) {
+    return getScalarConverter().matches(type);
   }
 
-  public boolean isNumber() {
-    return matchesTypes(Number.class);
+  public ScalarTypeHandler getScalarConverter() {
+    for (ScalarTypeHandler sc : SCALARS) {
+      if (sc.matches(typeClass)) {
+        return sc;
+      }
+    }
+    return getObject();
   }
 
-  public boolean isInteger() {
-    return matchesTypes(Integer.class, int.class);
-  }
-
-  public boolean isBoolean() {
-    return matchesTypes(Boolean.class, boolean.class);
+  public boolean isScalar() {
+    for (ScalarTypeHandler sc : SCALARS) {
+      if (sc.matches(typeClass)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

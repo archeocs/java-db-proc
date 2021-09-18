@@ -75,17 +75,8 @@ public class ProcjInvocationHandler implements InvocationHandler {
       return p.allAsMap().stream().collect(Collectors.toList());
     } else if (returnType.isSet()) {
       return p.allAsMap().stream().collect(Collectors.toSet());
-    } else if (returnType.isBoolean()) {
-      return (Boolean) p.first()[0];
-    } else if (returnType.isInteger()) {
-      return (Integer) p.first()[0];
-    } else if (returnType.isNumber()) {
-      return (Number) p.first()[0];
-    } else if (returnType.isObject()) {
-      return p.first();
-    } else if (returnType.isString()) {
-      Object v = p.first()[0];
-      return v != null ? v.toString() : null;
+    } else if (returnType.isScalar()) {
+      return returnType.getScalarConverter().convert(p.first()[0]);
     }
     return null;
   }

@@ -35,7 +35,7 @@ public class MethodProperties {
     } else if (runtimeMethod.getParameterCount() > 0) {
       return false;
     } else {
-      return returnType.isPrimitive() && returnType.isInteger();
+      return returnType.matches(int.class);
     }
   }
 
@@ -52,7 +52,7 @@ public class MethodProperties {
   public boolean isEquals() {
     if (!name.equals("equals")) {
       return false;
-    } else if (!(returnType.isPrimitive() && returnType.isBoolean())) {
+    } else if (!(returnType.matches(boolean.class))) {
       return false;
     } else if (runtimeMethod.getParameterCount() != 1) {
       return false;

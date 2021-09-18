@@ -59,31 +59,31 @@ public class TypePropertiesTest {
   @Test
   public void shouldRecognizeObjectType() {
     TypeProperties ut = returnType("objectMethod");
-    assertThat(ut.isObject()).isTrue();
+    assertThat(ut.matches(Object.class)).isTrue();
   }
 
   @Test
   public void shouldNotRecognizeSubclassOfObjectAsObject() {
-    TypeProperties ut = returnType("treeMapMethod");
+    TypeProperties ut = returnType("integerMethod");
     assertThat(ut.isObject()).isFalse();
   }
 
   @Test
   public void shouldRecognizePrimitiveInt() {
     TypeProperties ut = returnType("intMethod");
-    assertThat(ut.isInteger()).isTrue();
+    assertThat(ut.matches(int.class)).isTrue();
   }
 
   @Test
   public void shouldRecognizeInteger() {
     TypeProperties ut = returnType("integerMethod");
-    assertThat(ut.isInteger()).isTrue();
+    assertThat(ut.matches(Integer.class)).isTrue();
   }
 
   @Test
   public void shouldRecognizeBoolean() {
     TypeProperties ut = returnType("booleanMethod");
-    assertThat(ut.isBoolean()).isTrue();
+    assertThat(ut.matches(boolean.class)).isTrue();
   }
 
   @SneakyThrows
