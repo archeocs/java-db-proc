@@ -65,7 +65,7 @@ public class TypePropertiesTest {
   @Test
   public void shouldNotRecognizeSubclassOfObjectAsObject() {
     TypeProperties ut = returnType("integerMethod");
-    assertThat(ut.isObject()).isFalse();
+    assertThat(ut.matches(Object.class)).isFalse();
   }
 
   @Test
@@ -84,6 +84,13 @@ public class TypePropertiesTest {
   public void shouldRecognizeBoolean() {
     TypeProperties ut = returnType("booleanMethod");
     assertThat(ut.matches(boolean.class)).isTrue();
+  }
+
+  @Test
+  public void shouldRecognizeObjectArray() {
+    Class<? extends Object[]> t = new Object[0].getClass();
+    assertThat(t.isArray()).isTrue();
+    assertThat(t.getComponentType()).isEqualTo(Object.class);
   }
 
   @SneakyThrows

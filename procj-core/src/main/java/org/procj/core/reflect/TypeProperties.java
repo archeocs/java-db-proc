@@ -1,5 +1,6 @@
 package org.procj.core.reflect;
 
+import static org.procj.core.reflect.ScalarTypeHandler.*;
 import static org.procj.core.reflect.ScalarTypeHandler.getBoolean;
 import static org.procj.core.reflect.ScalarTypeHandler.getInteger;
 import static org.procj.core.reflect.ScalarTypeHandler.getNumber;
@@ -18,8 +19,10 @@ import org.procj.core.ProcjException;
 @Getter
 public class TypeProperties {
 
-  private static final ScalarTypeHandler[] SCALARS = {
-    getBoolean(), getInteger(), getNumber(), getString(), getObject()
+  private static final ScalarTypeHandler[] SCALARS = {getBoolean(), getString(), getObject()};
+
+  private static final ScalarTypeHandler[] NUMERIC_SCALARS = {
+    getInteger(), getShort(), getLong(), getByte(), getBigDecimal(), getNumber()
   };
 
   private final Type runtimeType;
@@ -58,12 +61,17 @@ public class TypeProperties {
     return Map.class.isAssignableFrom(typeClass);
   }
 
-  public boolean isObject() {
-    return typeClass.isAssignableFrom(Object.class);
+  public boolean isPrimitive() {
+    return typeClass.isPrimitive();
   }
 
-  public boolean isString() {
-    return typeClass.isAssignableFrom(String.class);
+  public boolean isNumeric() {
+    for (ScalarTypeHandler sc : NUMERIC_SCALARS) {
+      if (sc.matches(typeClass)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean matches(Class<?> type) {
@@ -71,6 +79,11 @@ public class TypeProperties {
   }
 
   public ScalarTypeHandler getScalarConverter() {
+    for (ScalarTypeHandler sc : NUMERIC_SCALARS) {
+      if (sc.matches(typeClass)) {
+        return sc;
+      }
+    }
     for (ScalarTypeHandler sc : SCALARS) {
       if (sc.matches(typeClass)) {
         return sc;
@@ -80,6 +93,11 @@ public class TypeProperties {
   }
 
   public boolean isScalar() {
+    for (ScalarTypeHandler sc : NUMERIC_SCALARS) {
+      if (sc.matches(typeClass)) {
+        return true;
+      }
+    }
     for (ScalarTypeHandler sc : SCALARS) {
       if (sc.matches(typeClass)) {
         return true;

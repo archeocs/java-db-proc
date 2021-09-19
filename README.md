@@ -1,6 +1,6 @@
 # ProcJ
 
-## Converting types
+## Types conversions
 
 Every time method with `@Procedure` annotation is executed, ProcJ uses following 
 rules to convert execution result to declared return type:
@@ -36,8 +36,7 @@ rules to convert execution result to declared return type:
     called method will return all received rows converted with declared Parametrized type.
     generic type is undefined, or is defined as `java.lang.Object` then each row is represented 
     as `java.util.HashMap`
- 
- 
+    
 ### Examples:
 
  - `Object getOne()` - returns first value from first row without any conversion,
@@ -50,3 +49,37 @@ rules to convert execution result to declared return type:
  - `String[] getRow()` - returns first row after conversion of each value to `String`
  
  - `my.package.Book getBook()` - returns first row as instance of `my.package.Book` 
+
+## Conversion rules
+
+ProcJ tries to convert output values (OV) to return type (RT). The baseline rule is to avoid throwing
+exception by all means. 
+
+### Numeric and logical types
+
+In first step ProcJ tries to return OV without any conversion, if it is instance of RT. In second 
+step ProcJ will try to convert OV to `java.math.Bigdecimal`. If conversion is successful then 
+converted value will be base for calculation of final result. Otherwise it is calculated from 
+`BigDecimal.ZERO`.
+
+ 1. string value `yes` is converted to logical `Boolean.TRUE`
+ 2. logical `Boolean.TRUE` is converted to `BigDecimal.ONE`
+ 3. logical `Boolean.FALSE` is converted to `BigDecimal.ZERO`
+ 4. `BigDecimal.ONE` is converted to logical `Boolean.TRUE`
+ 5 `BigDecimal.ZERO` is converted to logical `Boolean.FALSE`
+ 6. string value other than `"yes` is converted to `Boolean.FALSE`
+ 7. `java.math.BigDecimal` is converted to numeric RT using provided instance methods
+ 8. string value `"true"` is converted to logical `Boolean.TRUE`
+ 9. other types are converted to BigDecimal from theirs string representation
+ 
+ If RT represents primitive type and OT is `null`, then final result is calculated from `BigDecimal.ZERO`.
+ If RT represents boxed type and OT is `null`, then final result will be `null`
+ 
+ **Examples**
+ 
+  | Return type     | Output value    | Final Value     | Rules       |
+  | BigDecimal      | "any-value"     | BigDecimal.ZERO | (6) (3)     |
+  | Long            | "Yes"           | 1L              | (1) (2)     |
+  | Double          | true            | 1.0d            | (8) (7)     |
+  | Long            | new Object()    | 0L              | (9) (6) (3) |
+  | Boolean         | BigDecimal.ZERO | false           | (5)         |

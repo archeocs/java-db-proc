@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -67,6 +68,54 @@ public class ProcjInvocationHandlerTest {
   }
 
   @Test
+  public void shouldExecuteProcedureAndReturnPrimitiveNumber() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure(false, 100);
+    when(executor.getProcedure("test-primitive")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(proxy, TestBundle.class.getMethod("testPrimitive"), new Object[] {});
+
+    assertThat(result).isEqualTo(100);
+  }
+
+  @Test
+  public void shouldExecuteProcedureAndConvertNullToPrimitive() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure(false, null);
+    when(executor.getProcedure("test-primitive")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(proxy, TestBundle.class.getMethod("testPrimitive"), new Object[] {});
+
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  public void shouldExecuteProcedureAndReturnBoxedNumber() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure(false, 100d);
+    when(executor.getProcedure("test-boxed")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(proxy, TestBundle.class.getMethod("testBoxed"), new Object[] {});
+
+    assertThat(result).isEqualTo(100L);
+  }
+
+  @Test
+  public void shouldExecuteProcedureAndReturnNull() throws Throwable {
+    final Object proxy = new Object();
+    final TestProcedure procedure = new TestProcedure(false, null);
+    when(executor.getProcedure("test-boxed")).thenReturn(procedure);
+
+    final Object result =
+        underTest.invoke(proxy, TestBundle.class.getMethod("testBoxed"), new Object[] {});
+
+    assertThat(result).isNull();
+  }
+
+  @Test
   public void shouldCommitTx() throws Throwable {
     final Object proxy = new Object();
     underTest.invoke(proxy, TestBundle.class.getMethod("testCommit"), null);
@@ -102,6 +151,12 @@ public class ProcjInvocationHandlerTest {
     @ProcedureConfig(name = "test-procedure-obj")
     Object testProcedureObj();
 
+    @ProcedureConfig(name = "test-primitive")
+    int testPrimitive();
+
+    @ProcedureConfig(name = "test-boxed")
+    Long testBoxed();
+
     @SuppressWarnings("rawtypes")
     @ProcedureConfig(name = "test-procedure-map")
     Collection<Map> testProcedureMap();
@@ -117,18 +172,20 @@ public class ProcjInvocationHandlerTest {
     void testRollback();
   }
 
+  @RequiredArgsConstructor
   class TestProcedure implements Procedure {
 
     Map<Integer, Object> inParameters = new HashMap<Integer, Object>();
 
-    private boolean error;
+    private final boolean error;
+    private final Object rv;
 
     public TestProcedure() {
-      this(false);
+      this(false, "return-value");
     }
 
     public TestProcedure(boolean error) {
-      this.error = error;
+      this(error, "return-value");
     }
 
     @Override
@@ -159,7 +216,7 @@ public class ProcjInvocationHandlerTest {
       if (error) {
         throw new Exception("Get scalar");
       }
-      return "return-value";
+      return rv;
     }
 
     @Override
@@ -181,7 +238,7 @@ public class ProcjInvocationHandlerTest {
 
     @Override
     public Object[] first() throws Exception {
-      return null;
+      return new Object[] {rv};
     }
 
     @Override

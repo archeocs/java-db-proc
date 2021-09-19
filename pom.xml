@@ -60,7 +60,13 @@
 		<artifactId>lombok</artifactId>
 		<version>1.18.20</version>
 		<scope>provided</scope>
-	</dependency>
+	  </dependency>
+	  <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs</artifactId>
+        <version>4.4.1</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
 
   </dependencyManagement>

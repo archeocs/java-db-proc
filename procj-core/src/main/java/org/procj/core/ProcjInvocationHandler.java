@@ -76,8 +76,22 @@ public class ProcjInvocationHandler implements InvocationHandler {
     } else if (returnType.isSet()) {
       return p.allAsMap().stream().collect(Collectors.toSet());
     } else if (returnType.isScalar()) {
-      return returnType.getScalarConverter().convert(p.first()[0]);
+      Object output = returnType.getScalarConverter().convert(p.first()[0]);
+      if (output == null) {
+        return convertNull(returnType);
+      }
+      return output;
     }
     return null;
+  }
+
+  private static Object convertNull(TypeProperties type) {
+    if (!type.isPrimitive()) {
+      return null;
+    } else if (type.isNumeric()) {
+      return 0;
+    } else {
+      return false;
+    }
   }
 }
