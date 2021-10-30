@@ -2,6 +2,14 @@ package org.procj.core.reflect;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -19,7 +27,7 @@ public abstract class ScalarTypeHandler {
 
   public boolean matches(Class<?> typeClass) {
     for (Class<?> c : supportedTypes) {
-      if (c.equals(typeClass)) {
+      if (c.equals(typeClass) || c.isAssignableFrom(typeClass)) {
         return true;
       }
     }
@@ -38,6 +46,36 @@ public abstract class ScalarTypeHandler {
     @Override
     public Object convert(Object output) {
       return convert.apply(output);
+    }
+  }
+
+  private static Instant asInstant(Object v) {
+    if (v instanceof Instant) {
+      return (Instant) v;
+    } else if (v instanceof Timestamp) {
+      return ((Timestamp) v).toInstant();
+    } else if (v instanceof Date) {
+      return asInstant(((Date) v).toLocalDate());
+    } else if (v instanceof java.util.Date) {
+      return ((java.util.Date) v).toInstant();
+    } else if (v instanceof LocalDate) {
+      return asInstant(((LocalDate) v).atStartOfDay());
+    } else if (v instanceof LocalDateTime) {
+      return ((LocalDateTime) v).toInstant(ZoneOffset.UTC);
+    } else if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toInstant();
+    } else {
+      return Instant.ofEpochMilli(asBigDecimal(v).longValue());
+    }
+  }
+
+  private static <R> R asTemporal(Object v, Class<R> type, Function<Instant, R> convert) {
+    if (v == null) {
+      return null;
+    } else if (type.isInstance(v)) {
+      return type.cast(v);
+    } else {
+      return convert.apply(asInstant(v));
     }
   }
 
@@ -132,5 +170,31 @@ public abstract class ScalarTypeHandler {
 
   public static ScalarTypeHandler getBigDecimal() {
     return new FunctionalScalarTypeHander(ScalarTypeHandler::asBigDecimal, BigDecimal.class);
+  }
+
+  public static ScalarTypeHandler getLocalDateTime() {
+    return new FunctionalScalarTypeHander(
+        (v) ->
+            asTemporal(
+                v, LocalDateTime.class, (in) -> LocalDateTime.ofInstant(in, ZoneId.of("UTC"))),
+        LocalDateTime.class);
+  }
+
+  public static ScalarTypeHandler getLocalDate() {
+    return new FunctionalScalarTypeHander(
+        (v) ->
+            asTemporal(
+                v,
+                LocalDate.class,
+                (in) -> LocalDateTime.ofInstant(in, ZoneId.of("UTC")).toLocalDate()),
+        LocalDate.class);
+  }
+
+  public static ScalarTypeHandler getOffsetDateTime() {
+    return new FunctionalScalarTypeHander(
+        (v) ->
+            asTemporal(
+                v, OffsetDateTime.class, (in) -> OffsetDateTime.ofInstant(in, ZoneId.of("UTC"))),
+        OffsetDateTime.class);
   }
 }

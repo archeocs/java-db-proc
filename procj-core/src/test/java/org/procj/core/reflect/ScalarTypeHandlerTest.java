@@ -3,6 +3,11 @@ package org.procj.core.reflect;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -55,6 +60,13 @@ public class ScalarTypeHandlerTest {
   public void shouldValueToNumber(Object source, BigDecimal output) {
     ScalarTypeHandler ut = ScalarTypeHandler.getBigDecimal();
     assertThat((BigDecimal) ut.convert(source)).isEqualByComparingTo(output);
+  }
+
+  @ParameterizedTest
+  @MethodSource("localDateTimeConvert")
+  public void shouldValueToLocalDateTime(Object source, LocalDateTime output) {
+    ScalarTypeHandler ut = ScalarTypeHandler.getLocalDateTime();
+    assertThat(ut.convert(source)).isEqualTo(output);
   }
 
   public static Object[][] integerConvert() {
@@ -151,6 +163,27 @@ public class ScalarTypeHandlerTest {
       new Object[] {"1.0", BigDecimal.valueOf(1.0)},
       new Object[] {"1.023", BigDecimal.valueOf(1.023)},
       new Object[] {"any-string", BigDecimal.ZERO}
+    };
+  }
+
+  private static LocalDateTime ofEpochMili(long mili) {
+    return LocalDateTime.ofInstant(Instant.ofEpochMilli(mili), ZoneId.of("UTC"));
+  }
+
+  public static Object[][] localDateTimeConvert() {
+    return new Object[][] {
+      new Object[] {1, ofEpochMili(1)},
+      new Object[] {"false", ofEpochMili(0)},
+      new Object[] {1.02, ofEpochMili(1)},
+      new Object[] {"yes", ofEpochMili(1)},
+      new Object[] {1d, ofEpochMili(1)},
+      new Object[] {"1.0", ofEpochMili(1)},
+      new Object[] {"1.023", ofEpochMili(1)},
+      new Object[] {"any-string", ofEpochMili(0)},
+      new Object[] {new Timestamp(1234), ofEpochMili(1234)},
+      // because of limitations of java.sql.Date type, time component is lost
+      new Object[] {new Date(1234), ofEpochMili(0)},
+      new Object[] {new java.util.Date(1234), ofEpochMili(1234)},
     };
   }
 }
