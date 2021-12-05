@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+import org.procj.coerce.FromInstant;
+import org.procj.coerce.ToInstant;
+
 public abstract class ScalarTypeHandler {
 
   List<Class<?>> supportedTypes;
@@ -173,10 +176,7 @@ public abstract class ScalarTypeHandler {
   }
 
   public static ScalarTypeHandler getLocalDateTime() {
-    return new FunctionalScalarTypeHander(
-        (v) ->
-            asTemporal(
-                v, LocalDateTime.class, (in) -> LocalDateTime.ofInstant(in, ZoneId.of("UTC"))),
+    return new FunctionalScalarTypeHander(new ToInstant().andThen(FromInstant::toLocalDateTime),
         LocalDateTime.class);
   }
 

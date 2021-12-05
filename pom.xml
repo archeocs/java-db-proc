@@ -14,6 +14,7 @@
     <module>procj-provider-spi</module>
     <module>procj-provider-jdbc</module>
     <module>integration-tests</module>
+    <module>procj-common</module>
   </modules>
 
   <properties>
