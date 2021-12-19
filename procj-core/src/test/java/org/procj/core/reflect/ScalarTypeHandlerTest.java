@@ -173,13 +173,8 @@ public class ScalarTypeHandlerTest {
   public static Object[][] localDateTimeConvert() {
     return new Object[][] {
       new Object[] {1, ofEpochMili(1)},
-      new Object[] {"false", ofEpochMili(0)},
       new Object[] {1.02, ofEpochMili(1)},
-      new Object[] {"yes", ofEpochMili(1)},
       new Object[] {1d, ofEpochMili(1)},
-      new Object[] {"1.0", ofEpochMili(1)},
-      new Object[] {"1.023", ofEpochMili(1)},
-      new Object[] {"any-string", ofEpochMili(0)},
       new Object[] {new Timestamp(1234), ofEpochMili(1234)},
       // because of limitations of java.sql.Date type, time component is lost
       new Object[] {new Date(1234), ofEpochMili(0)},
