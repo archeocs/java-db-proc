@@ -13,6 +13,7 @@
 			<groupId>org.procj</groupId>
 			<artifactId>procj-provider-spi</artifactId>
 			<version>${project.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>

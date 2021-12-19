@@ -68,6 +68,12 @@
         <version>4.4.1</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-annotations</artifactId>
+        <version>4.4.1</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
 
   </dependencyManagement>
@@ -128,6 +134,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.2.0</version>
         <configuration>
           <failOnWarning>true</failOnWarning>
           <ignoreNonCompile>true</ignoreNonCompile>
