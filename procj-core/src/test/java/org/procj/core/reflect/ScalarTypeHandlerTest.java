@@ -72,70 +72,54 @@ public class ScalarTypeHandlerTest {
   public static Object[][] integerConvert() {
     return new Object[][] {
       new Object[] {1, 1},
-      new Object[] {"false", 0},
       new Object[] {1.02, 1},
       new Object[] {null, null},
-      new Object[] {"yes", 1},
       new Object[] {1d, 1},
       new Object[] {"1.0", 1},
       new Object[] {"1.023", 1},
-      new Object[] {"any-string", 0}
     };
   }
 
   public static Object[][] byteConvert() {
-    byte zero = 0b0;
     byte one = 0b1;
     return new Object[][] {
       new Object[] {1, one},
-      new Object[] {"false", zero},
       new Object[] {1.02, one},
       new Object[] {null, null},
-      new Object[] {"yes", one},
       new Object[] {1d, one},
       new Object[] {"1.0", one},
       new Object[] {"1.023", one},
-      new Object[] {"any-string", zero}
     };
   }
 
   public static Object[][] shortConvert() {
     short one = 1;
-    short zero = 0;
     return new Object[][] {
       new Object[] {1, one},
-      new Object[] {"false", zero},
       new Object[] {1.02, one},
       new Object[] {null, null},
-      new Object[] {"yes", one},
       new Object[] {1d, one},
       new Object[] {"1.0", one},
       new Object[] {"1.023", one},
-      new Object[] {"any-string", zero}
     };
   }
 
   public static Object[][] longConvert() {
     return new Object[][] {
       new Object[] {1, 1L},
-      new Object[] {"false", 0L},
       new Object[] {1.02, 1L},
       new Object[] {null, null},
-      new Object[] {"yes", 1L},
       new Object[] {1d, 1L},
       new Object[] {"1.0", 1L},
-      new Object[] {"1.023", 1L},
-      new Object[] {"any-string", 0L}
+      new Object[] {"1.023", 1L}
     };
   }
 
   public static Object[][] numberConvert() {
     return new Object[][] {
       new Object[] {1, 1},
-      new Object[] {"false", BigDecimal.ZERO},
       new Object[] {1.02, 1.02},
-      new Object[] {null, null},
-      new Object[] {"yes", BigDecimal.ONE}
+      new Object[] {null, null}
     };
   }
 
@@ -156,13 +140,10 @@ public class ScalarTypeHandlerTest {
   public static Object[][] bigDecimalConvert() {
     return new Object[][] {
       new Object[] {1, BigDecimal.ONE},
-      new Object[] {"false", BigDecimal.ZERO},
       new Object[] {1.02, BigDecimal.valueOf(1.02d)},
-      new Object[] {"yes", BigDecimal.ONE},
       new Object[] {1d, BigDecimal.ONE},
       new Object[] {"1.0", BigDecimal.valueOf(1.0)},
       new Object[] {"1.023", BigDecimal.valueOf(1.023)},
-      new Object[] {"any-string", BigDecimal.ZERO}
     };
   }
 

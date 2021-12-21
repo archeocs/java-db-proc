@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import org.procj.coerce.FromInstant;
+import org.procj.coerce.FromNumber;
 import org.procj.coerce.ToInstant;
+import org.procj.coerce.ToNumber;
 
 public abstract class ScalarTypeHandler {
 
@@ -32,10 +34,10 @@ public abstract class ScalarTypeHandler {
   }
 
   private static class FunctionalScalarTypeHander extends ScalarTypeHandler {
-    private final Function<Object, Object> convert;
+    private final Function<Object, ? extends Object> convert;
 
     public FunctionalScalarTypeHander(
-        Function<Object, Object> convert, Class<?>... supportedTypes) {
+        Function<Object, ? extends Object> convert, Class<?>... supportedTypes) {
       super(supportedTypes);
       this.convert = convert;
     }
@@ -78,26 +80,6 @@ public abstract class ScalarTypeHandler {
     }
   }
 
-  private static Number asNumber(Object v) {
-    if (v == null) {
-      return null;
-    } else if (Number.class.isAssignableFrom(v.getClass())) {
-      return (Number) v;
-    } else {
-      return asBigDecimal(v);
-    }
-  }
-
-  private static <R> R asNumeric(Object v, Class<R> type, Function<BigDecimal, R> convert) {
-    if (v == null) {
-      return null;
-    } else if (type.isInstance(v)) {
-      return type.cast(v);
-    } else {
-      return convert.apply(asBigDecimal(v));
-    }
-  }
-
   public static ScalarTypeHandler getString() {
     return new FunctionalScalarTypeHander(String::valueOf, String.class);
   }
@@ -113,30 +95,31 @@ public abstract class ScalarTypeHandler {
 
   public static ScalarTypeHandler getInteger() {
     return new FunctionalScalarTypeHander(
-        (v) -> asNumeric(v, Integer.class, BigDecimal::intValue), Integer.class, int.class);
+        new ToNumber().andThen(FromNumber::toInteger), Integer.class, int.class);
   }
 
   public static ScalarTypeHandler getLong() {
     return new FunctionalScalarTypeHander(
-        (v) -> asNumeric(v, Long.class, BigDecimal::longValue), Long.class, long.class);
+        new ToNumber().andThen(FromNumber::toLongObject), Long.class, long.class);
   }
 
   public static ScalarTypeHandler getShort() {
     return new FunctionalScalarTypeHander(
-        (v) -> asNumeric(v, Short.class, BigDecimal::shortValue), Short.class, short.class);
+        new ToNumber().andThen(FromNumber::toShortObject), Short.class, short.class);
   }
 
   public static ScalarTypeHandler getByte() {
     return new FunctionalScalarTypeHander(
-        (v) -> asNumeric(v, Byte.class, BigDecimal::byteValue), Byte.class, byte.class);
+        new ToNumber().andThen(FromNumber::toByteObject), Byte.class, byte.class);
   }
 
   public static ScalarTypeHandler getNumber() {
-    return new FunctionalScalarTypeHander(ScalarTypeHandler::asNumber, Number.class);
+    return new FunctionalScalarTypeHander(new ToNumber(), Number.class);
   }
 
   public static ScalarTypeHandler getBigDecimal() {
-    return new FunctionalScalarTypeHander(ScalarTypeHandler::asBigDecimal, BigDecimal.class);
+    return new FunctionalScalarTypeHander(
+        new ToNumber().andThen(FromNumber::toBigDecimal), BigDecimal.class);
   }
 
   public static ScalarTypeHandler getLocalDateTime() {
