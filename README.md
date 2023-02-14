@@ -1,5 +1,7 @@
 # ProcJ
 
+Trigger SQL procedures like regular Java methods. Check [integration test](https://github.com/archeocs/java-db-proc/blob/main/integration-tests/src/test/java/org/procj/it/ProcjIT.java) as example.
+
 ## Types conversions
 
 Every time method with `@Procedure` annotation is executed, ProcJ uses following 
